@@ -338,7 +338,7 @@ async def webhook_update_registration(hass, config_entry, data):
 
     _LOGGER.warning(
         "HASS expects this to belong to "
-        + f"{registrations[new_registration[CONF_WEBHOOK_ID]].items()}"
+        + f"{registrations[new_registration[CONF_WEBHOOK_ID]].data[ATTR_DEVICE_NAME]}"
     )
 
     device_registry = await dr.async_get_registry(hass)

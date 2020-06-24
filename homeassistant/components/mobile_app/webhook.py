@@ -329,6 +329,11 @@ async def webhook_update_registration(hass, config_entry, data):
 
     _LOGGER.warning(f"Request to re-register {new_registration}")
 
+    _LOGGER.warning(
+        f"So we have a request to register {new_registration[ATTR_DEVICE_NAME]}"
+        + f" against webhook {new_registration[CONF_WEBHOOK_ID]}"
+    )
+
     device_registry = await dr.async_get_registry(hass)
 
     device_registry.async_get_or_create(

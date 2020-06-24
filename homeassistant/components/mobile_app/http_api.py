@@ -100,6 +100,10 @@ class RegistrationsView(HomeAssistantView):
             for webhook_id, entry in hass.data[DOMAIN][DATA_CONFIG_ENTRIES].items()
         ]
 
+        _LOGGER.warning(
+            f"Full registrations object: {hass.data[DOMAIN][DATA_CONFIG_ENTRIES]}"
+        )
+
         _LOGGER.warning(f"Current device name {data[ATTR_DEVICE_NAME]}")
 
         _LOGGER.warning(f"Existing {registrations}")

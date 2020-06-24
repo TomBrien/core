@@ -253,7 +253,7 @@ async def test_webhook_update_location(hass, webhook_client, create_registration
 
     assert resp.status == 200
 
-    state = hass.states.get("device_tracker.test_1_2")
+    state = hass.states.get("device_tracker.test_clear")
     assert state is not None
     assert state.attributes["latitude"] == 1.0
     assert state.attributes["longitude"] == 2.0

@@ -116,6 +116,13 @@ class RegistrationsView(HomeAssistantView):
             )
         )
 
+        registrations = [
+            entry.data[ATTR_DEVICE_NAME]
+            for webhook_id, entry in hass.data[DOMAIN][DATA_CONFIG_ENTRIES].items()
+        ]
+
+        _LOGGER.warning(f"All registrations now {registrations}")
+
         remote_ui_url = None
         try:
             remote_ui_url = hass.components.cloud.async_remote_ui_url()

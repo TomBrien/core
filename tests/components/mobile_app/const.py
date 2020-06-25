@@ -58,7 +58,16 @@ RENDER_TEMPLATE = {
 UPDATE = {
     "app_data": {"foo": "bar"},
     "app_version": "2.0.0",
-    "device_name": "Test 1",
+    "device_name": "Test Clear",
+    "manufacturer": "mobile_app",
+    "model": "Test",
+    "os_version": "1.0",
+}
+
+UPDATE_NEW_NAME = {
+    "app_data": {"foo": "bar"},
+    "app_version": "2.0.0",
+    "device_name": "New Name",
     "manufacturer": "mobile_app",
     "model": "Test",
     "os_version": "1.0",

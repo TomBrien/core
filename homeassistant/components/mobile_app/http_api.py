@@ -100,19 +100,16 @@ class RegistrationsView(HomeAssistantView):
             for webhook_id, entry in hass.data[DOMAIN][DATA_CONFIG_ENTRIES].items()
         ]
 
-        _LOGGER.warning(
-            f"Full registrations object: {hass.data[DOMAIN][DATA_CONFIG_ENTRIES]}"
-        )
+        requested_name = data[ATTR_DEVICE_NAME]
 
-        _LOGGER.warning(f"Current device name {data[ATTR_DEVICE_NAME]}")
+        data[ATTR_DEVICE_NAME] = ensure_unique_string(requested_name, registrations)
 
-        _LOGGER.warning(f"Existing {registrations}")
-
-        data[ATTR_DEVICE_NAME] = ensure_unique_string(
-            data[ATTR_DEVICE_NAME], registrations
-        )
-
-        _LOGGER.warning(f"Final device name {data[ATTR_DEVICE_NAME]}")
+        if data[ATTR_DEVICE_NAME] != requested_name:
+            _LOGGER.warning(
+                "Using device name %s instead of %s to ensure unique",
+                data[ATTR_APP_NAME],
+                requested_name,
+            )
 
         await hass.async_create_task(
             hass.config_entries.flow.async_init(
@@ -124,8 +121,6 @@ class RegistrationsView(HomeAssistantView):
             entry.data[ATTR_DEVICE_NAME]
             for webhook_id, entry in hass.data[DOMAIN][DATA_CONFIG_ENTRIES].items()
         ]
-
-        _LOGGER.warning(f"All registrations now {registrations}")
 
         remote_ui_url = None
         try:

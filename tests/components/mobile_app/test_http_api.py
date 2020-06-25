@@ -128,7 +128,7 @@ async def test_duplicate_device_name(hass, hass_client, hass_admin_user):
     assert len(add_user_dev_track.mock_calls) == 1
     assert add_user_dev_track.mock_calls[0][1][2] == "device_tracker.test_clear"
 
-    # Register second with device
+    # Register second device with same name
     with patch(
         "homeassistant.components.person.async_add_user_device_tracker",
         spec=True,

@@ -327,7 +327,7 @@ async def webhook_update_registration(hass, config_entry, data):
     """Handle an update registration webhook."""
     new_registration = {**config_entry.data, **data}
 
-    _LOGGER.warning(f"Request to re-register {new_registration}")
+    _LOGGER.warning("Request to re-register %s", new_registration)
 
     _LOGGER.warning(
         f"So we have a request to register {new_registration[ATTR_DEVICE_NAME]}"
@@ -337,9 +337,28 @@ async def webhook_update_registration(hass, config_entry, data):
     registrations = hass.data[DOMAIN][DATA_CONFIG_ENTRIES]
 
     _LOGGER.warning(
-        "HASS expects this to belong to "
-        + f"{registrations[new_registration[CONF_WEBHOOK_ID]].data[ATTR_DEVICE_NAME]}"
+        "HASS expects this to belong to %s",
+        registrations[new_registration[CONF_WEBHOOK_ID]].data[ATTR_DEVICE_NAME],
     )
+
+    try:
+        current_name = registrations[new_registration[CONF_WEBHOOK_ID]].data[
+            ATTR_DEVICE_NAME
+        ]
+    except KeyError:
+        current_name = None
+        _LOGGER.warning(
+            "Could not find existing device name for webhook: "
+            + f"{new_registration[CONF_WEBHOOK_ID]}"
+        )
+
+    if current_name:
+        if new_registration[ATTR_DEVICE_NAME] != current_name:
+            _LOGGER.info(
+                f"Refusing to change device name from {current_name} "
+                + f"to {new_registration[ATTR_DEVICE_NAME]}"
+            )
+            new_registration[ATTR_DEVICE_NAME] = current_name
 
     device_registry = await dr.async_get_registry(hass)
 

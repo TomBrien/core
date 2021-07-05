@@ -24,6 +24,7 @@ FLOWS = [
     "apple_tv",
     "arcam_fmj",
     "asuswrt",
+    "async_reload_patch_mwe",
     "atag",
     "august",
     "aurora",

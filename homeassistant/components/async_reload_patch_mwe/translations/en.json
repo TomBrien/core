@@ -1,0 +1,23 @@
+{
+    "config": {
+        "step": {
+            "init": {
+                "data": {
+                    "name": "Some string"
+                },
+                "title": "Hello, world!"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "show_things": "A check box."
+                },
+                "description": "A simple options flow"
+            }
+        }
+    },
+    "title": "Reload Patching Example"
+}

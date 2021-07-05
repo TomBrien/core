@@ -1,0 +1,15 @@
+{
+  "domain": "async_reload_patch_mwe",
+  "name": "Reload Patching Example",
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/async_reload_patch_mwe",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@tombrien"
+  ],
+  "iot_class": "assumed_state"
+}

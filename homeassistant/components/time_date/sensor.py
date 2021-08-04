@@ -24,6 +24,7 @@ OPTION_TYPES = {
     "time_date": "Time & Date",
     "beat": "Internet Time",
     "time_utc": "Time (UTC)",
+    "day_name": "Day",
 }
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
@@ -74,7 +75,7 @@ class TimeDateSensor(SensorEntity):
         """Icon to use in the frontend, if any."""
         if "date" in self.type and "time" in self.type:
             return "mdi:calendar-clock"
-        if "date" in self.type:
+        if "date" in self.type or self.type == "day_name":
             return "mdi:calendar"
         return "mdi:clock"
 
@@ -94,7 +95,7 @@ class TimeDateSensor(SensorEntity):
         """Compute next time an update should occur."""
         now = dt_util.utcnow()
 
-        if self.type == "date":
+        if self.type == "date" or self.type == "day_name":
             tomorrow = dt_util.as_local(now) + timedelta(days=1)
             return dt_util.start_of_local_day(tomorrow)
 
@@ -147,6 +148,8 @@ class TimeDateSensor(SensorEntity):
             self._state = f"@{beat:03d}"
         elif self.type == "date_time_iso":
             self._state = dt_util.parse_datetime(f"{date} {time}").isoformat()
+        elif self.type == "day_name":
+            self._state = dt_util.as_local(time_date).strftime("%A")
 
     @callback
     def point_in_time_listener(self, time_date):

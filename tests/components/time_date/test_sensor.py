@@ -42,6 +42,12 @@ async def test_intervals(hass):
     next_time = device.get_next_interval()
     assert next_time > now
 
+    now = dt_util.utc_from_timestamp(1495068856)
+    with patch("homeassistant.util.dt.utcnow", return_value=now):
+        device = time_date.TimeDateSensor(hass, "day_name")
+        next_time = device.get_next_interval()
+    assert next_time.timestamp() == 1495152000
+
 
 async def test_states(hass):
     """Test states of sensors."""
@@ -75,6 +81,10 @@ async def test_states(hass):
     device = time_date.TimeDateSensor(hass, "date_time_iso")
     device._update_internal_state(now)
     assert device.state == "2017-05-18T00:54:00"
+
+    device = time_date.TimeDateSensor(hass, "day_name")
+    device._update_internal_state(now)
+    assert device.state == "Thursday"
 
 
 async def test_states_non_default_timezone(hass):
@@ -111,6 +121,10 @@ async def test_states_non_default_timezone(hass):
     device = time_date.TimeDateSensor(hass, "date_time_iso")
     device._update_internal_state(now)
     assert device.state == "2017-05-17T20:54:00"
+
+    device = time_date.TimeDateSensor(hass, "day_name")
+    device._update_internal_state(now)
+    assert device.state == "Wednesday"
 
 
 # pylint: disable=no-member
@@ -190,3 +204,5 @@ async def test_icons(hass):
     assert device.icon == "mdi:calendar-clock"
     device = time_date.TimeDateSensor(hass, "date_time_iso")
     assert device.icon == "mdi:calendar-clock"
+    device = time_date.TimeDateSensor(hass, "day_name")
+    assert device.icon == "mdi:calendar"

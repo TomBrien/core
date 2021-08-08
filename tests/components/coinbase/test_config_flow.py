@@ -8,6 +8,7 @@ from homeassistant import config_entries, setup
 from homeassistant.components.coinbase.const import (
     CONF_CURRENCIES,
     CONF_EXCHANGE_RATES,
+    CONF_VAULTS,
     CONF_YAML_API_TOKEN,
     DOMAIN,
 )
@@ -19,7 +20,14 @@ from .common import (
     mock_get_exchange_rates,
     mocked_get_accounts,
 )
-from .const import BAD_CURRENCY, BAD_EXCHANGE_RATE, GOOD_CURRENCY, GOOD_EXCHANGE_RATE
+from .const import (
+    BAD_CURRENCY,
+    BAD_EXCHANGE_RATE,
+    BAD_VAULT,
+    GOOD_CURRENCY,
+    GOOD_EXCHANGE_RATE,
+    GOOD_VAULT,
+)
 
 from tests.common import MockConfigEntry
 
@@ -160,6 +168,7 @@ async def test_option_form(hass):
             result["flow_id"],
             user_input={
                 CONF_CURRENCIES: [GOOD_CURRENCY],
+                CONF_VAULTS: [GOOD_VAULT],
                 CONF_EXCHANGE_RATES: [GOOD_EXCHANGE_RATE],
             },
         )
@@ -192,6 +201,32 @@ async def test_form_bad_account_currency(hass):
 
     assert result2["type"] == "form"
     assert result2["errors"] == {"base": "currency_unavaliable"}
+
+
+async def test_form_bad_vault(hass):
+    """Test we handle a bad exchange rate."""
+    with patch(
+        "coinbase.wallet.client.Client.get_current_user",
+        return_value=mock_get_current_user(),
+    ), patch(
+        "coinbase.wallet.client.Client.get_accounts", new=mocked_get_accounts
+    ), patch(
+        "coinbase.wallet.client.Client.get_exchange_rates",
+        return_value=mock_get_exchange_rates(),
+    ):
+        config_entry = await init_mock_coinbase(hass)
+        result = await hass.config_entries.options.async_init(config_entry.entry_id)
+        await hass.async_block_till_done()
+        result2 = await hass.config_entries.options.async_configure(
+            result["flow_id"],
+            user_input={
+                CONF_CURRENCIES: [],
+                CONF_VAULTS: [BAD_VAULT],
+                CONF_EXCHANGE_RATES: [],
+            },
+        )
+    assert result2["type"] == "form"
+    assert result2["errors"] == {"base": "vault_unavailable"}
 
 
 async def test_form_bad_exchange_rate(hass):

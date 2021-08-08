@@ -2,6 +2,7 @@
 from homeassistant.components.coinbase.const import (
     CONF_CURRENCIES,
     CONF_EXCHANGE_RATES,
+    CONF_VAULTS,
     DOMAIN,
 )
 from homeassistant.const import CONF_API_KEY, CONF_API_TOKEN
@@ -64,7 +65,12 @@ def mock_get_exchange_rates():
     }
 
 
-async def init_mock_coinbase(hass, currencies=None, rates=None):
+async def init_mock_coinbase(
+    hass,
+    currencies=None,
+    vaults=None,
+    rates=None,
+):
     """Init Coinbase integration for testing."""
     config_entry = MockConfigEntry(
         domain=DOMAIN,
@@ -73,6 +79,7 @@ async def init_mock_coinbase(hass, currencies=None, rates=None):
         data={CONF_API_KEY: "123456", CONF_API_TOKEN: "AbCDeF"},
         options={
             CONF_CURRENCIES: currencies or [],
+            CONF_VAULTS: vaults or [],
             CONF_EXCHANGE_RATES: rates or [],
         },
     )

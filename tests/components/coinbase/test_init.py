@@ -6,6 +6,7 @@ from homeassistant.components.coinbase.const import (
     API_TYPE_VAULT,
     CONF_CURRENCIES,
     CONF_EXCHANGE_RATES,
+    CONF_VAULTS,
     CONF_YAML_API_TOKEN,
     DOMAIN,
 )
@@ -25,6 +26,7 @@ from .const import (
     GOOD_CURRENCY_2,
     GOOD_EXCHANGE_RATE,
     GOOD_EXCHANGE_RATE_2,
+    GOOD_VAULT,
 )
 
 
@@ -95,29 +97,31 @@ async def test_option_updates(hass: HomeAssistant):
         "coinbase.wallet.client.Client.get_exchange_rates",
         return_value=mock_get_exchange_rates(),
     ):
-        config_entry = await init_mock_coinbase(hass)
+        config_entry = await init_mock_coinbase(
+            hass,
+            currencies=[GOOD_CURRENCY, GOOD_CURRENCY_2],
+            vaults=[GOOD_VAULT],
+            rates=[GOOD_EXCHANGE_RATE, GOOD_EXCHANGE_RATE_2],
+        )
         await hass.async_block_till_done()
 
         result = await hass.config_entries.options.async_init(config_entry.entry_id)
-        await hass.async_block_till_done()
-        await hass.config_entries.options.async_configure(
-            result["flow_id"],
-            user_input={
-                CONF_CURRENCIES: [GOOD_CURRENCY, GOOD_CURRENCY_2],
-                CONF_EXCHANGE_RATES: [GOOD_EXCHANGE_RATE, GOOD_EXCHANGE_RATE_2],
-            },
-        )
-        await hass.async_block_till_done()
 
         registry = entity_registry.async_get(hass)
         entities = entity_registry.async_entries_for_config_entry(
             registry, config_entry.entry_id
         )
-        assert len(entities) == 4
+        assert len(entities) == 5
         currencies = [
             entity.unique_id.split("-")[-1]
             for entity in entities
             if "wallet" in entity.unique_id
+        ]
+
+        vaults = [
+            entity.unique_id.split("-")[-1]
+            for entity in entities
+            if "vault" in entity.unique_id
         ]
 
         rates = [
@@ -127,6 +131,7 @@ async def test_option_updates(hass: HomeAssistant):
         ]
 
         assert currencies == [GOOD_CURRENCY, GOOD_CURRENCY_2]
+        assert vaults == [GOOD_VAULT]
         assert rates == [GOOD_EXCHANGE_RATE, GOOD_EXCHANGE_RATE_2]
 
         result = await hass.config_entries.options.async_init(config_entry.entry_id)
@@ -135,6 +140,7 @@ async def test_option_updates(hass: HomeAssistant):
             result["flow_id"],
             user_input={
                 CONF_CURRENCIES: [GOOD_CURRENCY],
+                CONF_VAULTS: [],
                 CONF_EXCHANGE_RATES: [GOOD_EXCHANGE_RATE],
             },
         )

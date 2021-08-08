@@ -22,6 +22,7 @@ from .const import (
     CONF_CURRENCIES,
     CONF_EXCHANGE_BASE,
     CONF_EXCHANGE_RATES,
+    CONF_VAULTS,
     CONF_YAML_API_TOKEN,
     DOMAIN,
 )
@@ -118,6 +119,10 @@ async def update_listener(hass, config_entry):
             registry.async_remove(entity.entity_id)
         elif "wallet" in entity.unique_id and currency not in config_entry.options.get(
             CONF_CURRENCIES
+        ):
+            registry.async_remove(entity.entity_id)
+        elif "vault" in entity.unique_id and currency not in config_entry.options.get(
+            CONF_VAULTS
         ):
             registry.async_remove(entity.entity_id)
 

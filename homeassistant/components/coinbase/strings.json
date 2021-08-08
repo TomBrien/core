@@ -25,6 +25,7 @@
         "description": "Adjust Coinbase Options",
         "data": {
           "account_balance_currencies": "Wallet balances to report.",
+          "vault_balance_currencies": "Vault balances to report.",
           "exchange_rate_currencies": "Exchange rates to report.",
           "exchange_base": "Base currency for exchange rate sensors."
         }
@@ -33,6 +34,7 @@
     "error": {
       "unknown": "[%key:common::config_flow::error::unknown%]",
       "currency_unavaliable": "One or more of the requested currency balances is not provided by your Coinbase API.",
+      "vault_unavailable": "One or more of the requested vault balances is not provided by your Coinbase.com API.",
       "exchange_rate_unavaliable": "One or more of the requested exchange rates is not provided by Coinbase."
     }
   }

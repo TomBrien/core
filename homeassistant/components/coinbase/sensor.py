@@ -13,7 +13,9 @@ from .const import (
     API_ACCOUNT_NATIVE_BALANCE,
     API_RATES,
     API_RESOURCE_TYPE,
+    API_TYPE_FIAT,
     API_TYPE_VAULT,
+    API_TYPE_WALLET,
     CONF_CURRENCIES,
     CONF_EXCHANGE_RATES,
     CONF_VAULTS,
@@ -64,7 +66,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                 currency,
             )
             continue
-        entities.append(AccountSensor(instance, currency))
+        entities.append(AccountSensor(instance, "wallet", currency))
 
     provided_vaults = [
         account[API_ACCOUNT_CURRENCY]
@@ -85,7 +87,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                 vault,
             )
             continue
-        entities.append(VaultSensor(instance, vault))
+        entities.append(AccountSensor(instance, "vault", vault))
 
     if CONF_EXCHANGE_RATES in config_entry.options:
         for rate in config_entry.options[CONF_EXCHANGE_RATES]:
@@ -103,18 +105,24 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class AccountSensor(SensorEntity):
     """Representation of a Coinbase.com sensor."""
 
-    def __init__(self, coinbase_data, currency):
+    def __init__(self, coinbase_data, sensor_type, currency):
         """Initialize the sensor."""
         self._coinbase_data = coinbase_data
+        self._type = sensor_type
         self._currency = currency
+        self._selector = (
+            [API_TYPE_VAULT]
+            if self._type == "vault"
+            else [API_TYPE_FIAT, API_TYPE_WALLET]
+        )
         for account in coinbase_data.accounts:
             if (
                 account[API_ACCOUNT_CURRENCY] == currency
-                and account[API_RESOURCE_TYPE] != API_TYPE_VAULT
+                and account[API_RESOURCE_TYPE] in self._selector
             ):
                 self._name = f"Coinbase {account[API_ACCOUNT_NAME]}"
                 self._id = (
-                    f"coinbase-{account[API_ACCOUNT_ID]}-wallet-"
+                    f"coinbase-{account[API_ACCOUNT_ID]}-{self._type}-"
                     f"{account[API_ACCOUNT_CURRENCY]}"
                 )
                 self._state = account[API_ACCOUNT_BALANCE][API_ACCOUNT_AMOUNT]
@@ -166,85 +174,7 @@ class AccountSensor(SensorEntity):
         for account in self._coinbase_data.accounts:
             if (
                 account[API_ACCOUNT_CURRENCY] == self._currency
-                and account[API_RESOURCE_TYPE] != API_TYPE_VAULT
-            ):
-                self._state = account[API_ACCOUNT_BALANCE][API_ACCOUNT_AMOUNT]
-                self._native_balance = account[API_ACCOUNT_NATIVE_BALANCE][
-                    API_ACCOUNT_AMOUNT
-                ]
-                self._native_currency = account[API_ACCOUNT_NATIVE_BALANCE][
-                    API_ACCOUNT_CURRENCY
-                ]
-                break
-
-
-class VaultSensor(SensorEntity):
-    """Representation of a Coinbase.com vault sensor."""
-
-    def __init__(self, coinbase_data, vault):
-        """Initialize the sensor."""
-        self._coinbase_data = coinbase_data
-        self._currency = vault
-        for account in coinbase_data.accounts:
-            if (
-                account[API_ACCOUNT_CURRENCY] == vault
-                and account[API_RESOURCE_TYPE] == API_TYPE_VAULT
-            ):
-                self._name = f"Coinbase {account[API_ACCOUNT_NAME]}"
-                self._id = (
-                    f"coinbase-{account[API_ACCOUNT_ID]}-vault-"
-                    f"{account[API_ACCOUNT_CURRENCY]}"
-                )
-                self._state = account[API_ACCOUNT_BALANCE][API_ACCOUNT_AMOUNT]
-                self._unit_of_measurement = account[API_ACCOUNT_CURRENCY]
-                self._native_balance = account[API_ACCOUNT_NATIVE_BALANCE][
-                    API_ACCOUNT_AMOUNT
-                ]
-                self._native_currency = account[API_ACCOUNT_NATIVE_BALANCE][
-                    API_ACCOUNT_CURRENCY
-                ]
-                break
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def unique_id(self):
-        """Return the Unique ID of the sensor."""
-        return self._id
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement this sensor expresses itself in."""
-        return self._unit_of_measurement
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend, if any."""
-        return CURRENCY_ICONS.get(self._unit_of_measurement, DEFAULT_COIN_ICON)
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the sensor."""
-        return {
-            ATTR_ATTRIBUTION: ATTRIBUTION,
-            ATTR_NATIVE_BALANCE: f"{self._native_balance} {self._native_currency}",
-        }
-
-    def update(self):
-        """Get the latest state of the sensor."""
-        self._coinbase_data.update()
-        for account in self._coinbase_data.accounts:
-            if (
-                account[API_ACCOUNT_CURRENCY] == self._currency
-                and account[API_RESOURCE_TYPE] == API_TYPE_VAULT
+                and account[API_RESOURCE_TYPE] in self._selector
             ):
                 self._state = account[API_ACCOUNT_BALANCE][API_ACCOUNT_AMOUNT]
                 self._native_balance = account[API_ACCOUNT_NATIVE_BALANCE][

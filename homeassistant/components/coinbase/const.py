@@ -20,7 +20,9 @@ API_ACCOUNT_NAME = "name"
 API_ACCOUNTS_DATA = "data"
 API_RATES = "rates"
 API_RESOURCE_TYPE = "type"
+API_TYPE_FIAT = "fiat"
 API_TYPE_VAULT = "vault"
+API_TYPE_WALLET = "wallet"
 
 WALLETS = {
     "1INCH": "1INCH",

@@ -204,7 +204,7 @@ async def test_form_bad_account_currency(hass):
 
 
 async def test_form_bad_vault(hass):
-    """Test we handle a bad exchange rate."""
+    """Test we handle a bad vault currency."""
     with patch(
         "coinbase.wallet.client.Client.get_current_user",
         return_value=mock_get_current_user(),

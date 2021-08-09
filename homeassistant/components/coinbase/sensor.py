@@ -51,12 +51,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         if account[API_RESOURCE_TYPE] != API_TYPE_VAULT
     ]
 
-    desired_currencies = []
-
-    if CONF_CURRENCIES in config_entry.options:
-        desired_currencies = config_entry.options[CONF_CURRENCIES]
-
-    exchange_base_currency = instance.exchange_rates[API_ACCOUNT_CURRENCY]
+    desired_currencies = config_entry.options.get(CONF_CURRENCIES, [])
 
     for currency in desired_currencies:
         if currency not in provided_currencies:
@@ -74,10 +69,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         if account[API_RESOURCE_TYPE] == API_TYPE_VAULT
     ]
 
-    desired_vaults = []
-
-    if CONF_VAULTS in config_entry.options:
-        desired_vaults = config_entry.options[CONF_VAULTS]
+    desired_vaults = config_entry.options.get(CONF_VAULTS, [])
 
     for vault in desired_vaults:
         if vault not in provided_vaults:
@@ -88,6 +80,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             )
             continue
         entities.append(AccountSensor(instance, "vault", vault))
+
+    exchange_base_currency = instance.exchange_rates[API_ACCOUNT_CURRENCY]
 
     if CONF_EXCHANGE_RATES in config_entry.options:
         for rate in config_entry.options[CONF_EXCHANGE_RATES]:

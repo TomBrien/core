@@ -1,7 +1,7 @@
 """Component to embed TP-Link smart home devices."""
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 import logging
 import time
 from typing import Any
@@ -28,7 +28,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.util.dt import as_local, utc_from_timestamp
+from homeassistant.util.dt import utc_from_timestamp, utcnow
 
 from .common import (
     SmartDevices,
@@ -270,16 +270,19 @@ class SmartPlugDataUpdateCoordinator(DataUpdateCoordinator):
                     ATTR_LAST_RESET: {ATTR_TOTAL_ENERGY_KWH: utc_from_timestamp(0)},
                 }
                 emeter_statics = self.smartplug.get_emeter_daily()
-                last_reset = datetime.now() - get_time_offset(self.smartplug)
-                last_reset_local = as_local(last_reset.replace(second=0, microsecond=0))
-                _LOGGER.debug(
-                    "%s last reset time as local to server is %s",
-                    self.smartplug.alias,
-                    last_reset_local.strftime("%Y/%m/%d %H:%M:%S"),
-                )
-                data[CONF_EMETER_PARAMS][ATTR_LAST_RESET][
-                    ATTR_TODAY_ENERGY_KWH
-                ] = last_reset_local
+                offset = get_time_offset(self.smartplug)
+                # Only update last_reset if we are able to get data from plug
+                if offset is not None:
+                    last_reset = utcnow() - offset
+                    last_reset_rounded = last_reset.replace(second=0, microsecond=0)
+                    _LOGGER.debug(
+                        "%s last reset time as UTC is %s",
+                        self.smartplug.alias,
+                        last_reset_rounded.strftime("%Y/%m/%d %H:%M:%S"),
+                    )
+                    data[CONF_EMETER_PARAMS][ATTR_LAST_RESET][
+                        ATTR_TODAY_ENERGY_KWH
+                    ] = last_reset_rounded
                 if emeter_statics.get(int(time.strftime("%e"))):
                     data[CONF_EMETER_PARAMS][ATTR_TODAY_ENERGY_KWH] = round(
                         float(emeter_statics[int(time.strftime("%e"))]), 3

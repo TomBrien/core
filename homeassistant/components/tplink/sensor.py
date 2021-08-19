@@ -160,7 +160,8 @@ class SmartPlugSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def last_reset(self) -> datetime | None:
-        """Return the  last reset time for emeter."""
+        """Return the last reset time for emeter."""
+        # If first update fails will be None otherwise will be last valid data
         return self.data[CONF_EMETER_PARAMS][ATTR_LAST_RESET].get(
             self.entity_description.key
         )

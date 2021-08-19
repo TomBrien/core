@@ -187,9 +187,12 @@ def add_available_devices(
     return entities_ready
 
 
-def get_time_offset(device: SmartDevice) -> timedelta:
+def get_time_offset(device: SmartDevice) -> timedelta | None:
     """Get the time offset since last device reset (local midnight)."""
-    device_time = device.time.replace(microsecond=0)
+    device_time = device.time
+    if device_time is None:
+        return None
+    device_time = device_time.replace(microsecond=0)
     offset = device_time - device_time.replace(hour=0, minute=0, second=0)
     _LOGGER.debug(
         "%s local time is %s, offset from midnight is %s",
